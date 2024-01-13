@@ -1,4 +1,6 @@
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,8 +13,8 @@ public class Installer {
 
         try {
             // Установка
-            String[] dirs = {"src", "res", "savegames", "temp", "src\\main", "src\\test", "res\\drawables", "res\\vectors", "res\\icons"},
-                     files = {"src\\main\\Main.java", "src\\main\\Utils.java", "temp\\temp.txt"};
+            List<String> dirs = new ArrayList<>(Arrays.asList("src", "res", "savegames", "temp", "src\\main", "src\\test", "res\\drawables", "res\\vectors", "res\\icons")),
+                         files = new ArrayList<>(Arrays.asList("src\\main\\Main.java", "src\\main\\Utils.java", "temp\\temp.txt"));
 
 
             StringBuilder stringBuilder = new StringBuilder();
@@ -30,15 +32,14 @@ public class Installer {
             GameProgress gp2 = new GameProgress(79, 3, 101, 1.65);
             GameProgress gp3 = new GameProgress(90, 15, 150, 3.05);
 
-            String[] filesSave = {"\\savegames\\save1.dat", "\\savegames\\save2.dat", "\\savegames\\save3.dat"};
             List<String> listFiles = new ArrayList<>(Arrays.asList("save1.dat", "save2.dat", "save3.dat"));
-            createFiles(filesSave, stringBuilder, path);
+            createFiles(listFiles, stringBuilder, path + "\\savegames\\");
 
-            saveGame(path + filesSave[0], gp1);
-            saveGame(path + filesSave[1], gp2);
-            saveGame(path + filesSave[2], gp3);
+            saveGame(path + "\\savegames\\" + listFiles.get(0), gp1);
+            saveGame(path + "\\savegames\\" + listFiles.get(1), gp2);
+            saveGame(path + "\\savegames\\" + listFiles.get(2), gp3);
 
-            createFiles(new String[] {"savegames\\zip.zip"}, stringBuilder, path);
+//            createFiles(new String[] {"savegames\\zip.zip"}, stringBuilder, path);
 
             zipFiles(path + "\\savegames\\zip.zip", listFiles);
 
@@ -47,14 +48,14 @@ public class Installer {
         }
     }
 
-    public static void createDirs(String[] dirs, StringBuilder stringBuild, String path) {
+    public static void createDirs(List<String> dirs, StringBuilder stringBuild, String path) {
         for (String dir : dirs) {
             File src = new File(path +  "\\" + dir);
             stringBuild.append((src.mkdir()) ? "Директория " + dir + " успешно создана\n" : "Ошибка! Возможно директория " + dir + " уже создана!\n");
         }
     }
 
-    public static void createFiles(String[] files, StringBuilder stringBuild, String path) throws IOException {
+    public static void createFiles(List<String> files, StringBuilder stringBuild, String path) throws IOException {
         for (String file : files) {
             File src = new File(path + "\\" + file);
             stringBuild.append((src.createNewFile()) ? "Файл " + file + " успешно создан\n" : "Ошибка! Возможно файл " + file + " уже создан!\n");
@@ -72,6 +73,12 @@ public class Installer {
         }
     }
 
+    public static void deleteFiles(List<String> files) throws IOException {
+        for (String nameFile : files) {
+            Files.delete(Path.of("C:\\Users\\79265\\learn-java\\tasksNetology\\Games\\savegames\\" + nameFile));
+        }
+    }
+
     public static void zipFiles(String pathToZip, List<String> files) {
         try(ZipOutputStream zout = new ZipOutputStream(new FileOutputStream(pathToZip))) {
             for (String nameFile : files) {
@@ -84,6 +91,7 @@ public class Installer {
                     zout.closeEntry();
                 }
             }
+            deleteFiles(files);
         } catch (Exception ex) {
             System.out.println(ex.getMessage());
         }
